@@ -1,0 +1,176 @@
+{
+  "categories": [
+    {
+      "id": "linux-network",
+      "label": "리눅스 네트워크",
+      "color": "#22c55e",
+      "glowColor": "rgba(34,197,94,0.7)",
+      "era": "1990s",
+      "movement": {
+        "type": "orbit",
+        "speed": 0.0015,
+        "radius": 320,
+        "offset": 0
+      },
+      "techs": [
+        { "name": "TCP/IP", "desc": "인터넷 통신의 핵심 프로토콜. 패킷 기반 데이터 전송과 라우팅을 담당합니다." },
+        { "name": "DNS", "desc": "도메인 이름을 IP 주소로 변환하는 인터넷 전화번호부 시스템입니다." },
+        { "name": "NAT", "desc": "네트워크 주소 변환. 사설 IP를 공인 IP로 변환하여 보안과 주소 절약을 지원합니다." },
+        { "name": "IPTables", "desc": "리눅스 커널 방화벽. 패킷 필터링과 네트워크 주소 변환을 수행합니다." },
+        { "name": "OpenVPN", "desc": "오픈소스 VPN 솔루션. 안전한 원격 접속과 사이트 간 연결을 제공합니다." },
+        { "name": "SSH", "desc": "암호화된 원격 접속 프로토콜. 안전한 서버 관리와 파일 전송을 지원합니다." },
+        { "name": "FTP/SFTP", "desc": "파일 전송 프로토콜. SFTP는 SSH 기반의 보안 강화 버전입니다." },
+        { "name": "NFS", "desc": "네트워크 파일 시스템. 원격 디렉토리를 로컬처럼 마운트하여 사용합니다." }
+      ]
+    },
+    {
+      "id": "server-building",
+      "label": "서버 구축",
+      "color": "#3b82f6",
+      "glowColor": "rgba(59,130,246,0.7)",
+      "era": "2000s",
+      "movement": {
+        "type": "spiral",
+        "speed": 0.002,
+        "radius": 280,
+        "offset": 45
+      },
+      "techs": [
+        { "name": "Apache", "desc": "세계에서 가장 많이 사용되는 오픈소스 웹 서버. 안정성과 확장성이 뛰어납니다." },
+        { "name": "Nginx", "desc": "고성능 비동기 웹 서버. 리버스 프록시와 로드 밸런싱 기능을 제공합니다." },
+        { "name": "Docker", "desc": "컨테이너 기반 가상화 플랫폼. 애플리케이션을 격리된 환경에서 실행합니다." },
+        { "name": "Kubernetes", "desc": "컨테이너 오케스트레이션 플랫폼. 대규모 컨테이너 배포와 관리를 자동화합니다." },
+        { "name": "Ansible", "desc": "IT 자동화 도구. 서버 구성과 배포를 코드로 관리합니다." },
+        { "name": "Terraform", "desc": "인프라를 코드로 관리하는 IaC 도구. 클라우드 리소스를 선언적으로 정의합니다." },
+        { "name": "CI/CD", "desc": "지속적 통합과 배포. 코드 변경을 자동으로 테스트하고 배포합니다." },
+        { "name": "SSL/TLS", "desc": "암호화 통신 프로토콜. HTTPS를 통한 안전한 웹 통신을 제공합니다." }
+      ]
+    },
+    {
+      "id": "database-storage",
+      "label": "DB & 스토리지",
+      "color": "#f59e0b",
+      "glowColor": "rgba(245,158,11,0.7)",
+      "era": "2000s",
+      "movement": {
+        "type": "wave",
+        "speed": 0.0018,
+        "radius": 300,
+        "offset": 90
+      },
+      "techs": [
+        { "name": "MongoDB", "desc": "NoSQL 문서 데이터베이스. JSON 형태의 유연한 스키마로 빠른 개발을 지원합니다." },
+        { "name": "Redis", "desc": "인메모리 데이터 스토어. 초고속 캐싱과 세션 관리에 최적화되어 있습니다." },
+        { "name": "CockroachDB", "desc": "분산 SQL 데이터베이스. 글로벌 규모의 확장성과 강력한 일관성을 제공합니다." },
+        { "name": "Supabase", "desc": "오픈소스 Firebase 대안. PostgreSQL 기반의 BaaS 플랫폼입니다." },
+        { "name": "DynamoDB", "desc": "AWS의 완전 관리형 NoSQL 데이터베이스. 밀리초 단위의 응답 속도를 보장합니다." },
+        { "name": "S3 Glacier", "desc": "AWS의 장기 보관 스토리지. 저렴한 비용으로 대용량 아카이브를 저장합니다." }
+      ]
+    },
+    {
+      "id": "cloud-serverless",
+      "label": "클라우드 & 서버리스",
+      "color": "#06b6d4",
+      "glowColor": "rgba(6,182,212,0.7)",
+      "era": "2010s",
+      "movement": {
+        "type": "ellipse",
+        "speed": 0.0012,
+        "radius": 340,
+        "offset": 135
+      },
+      "techs": [
+        { "name": "AWS Lambda", "desc": "서버리스 컴퓨팅 서비스. 코드만 업로드하면 AWS가 실행 환경을 자동 관리합니다." },
+        { "name": "CloudWatch", "desc": "AWS 모니터링 서비스. 리소스 사용량과 로그를 실시간으로 추적합니다." },
+        { "name": "CloudFront", "desc": "AWS의 CDN 서비스. 전 세계에 콘텐츠를 빠르게 전송합니다." },
+        { "name": "Step Functions", "desc": "서버리스 워크플로우 조정 서비스. 여러 AWS 서비스를 연결합니다." },
+        { "name": "Google Cloud", "desc": "구글의 클라우드 플랫폼. AI/ML 서비스와 빅데이터 분석에 강점을 가집니다." }
+      ]
+    },
+    {
+      "id": "ai-ml",
+      "label": "AI & 머신러닝",
+      "color": "#a855f7",
+      "glowColor": "rgba(168,85,247,0.8)",
+      "era": "2020s",
+      "movement": {
+        "type": "figure8",
+        "speed": 0.0025,
+        "radius": 300,
+        "offset": 180
+      },
+      "highlight": true,
+      "techs": [
+        { "name": "LoRA", "desc": "Low-Rank Adaptation. LLM을 효율적으로 파인튜닝하는 기법입니다." },
+        { "name": "RAG", "desc": "Retrieval-Augmented Generation. 외부 지식을 검색하여 LLM 응답 품질을 향상시킵니다." },
+        { "name": "Vertex AI", "desc": "Google Cloud의 통합 AI 플랫폼. Gemini 모델 API와 MLOps를 제공합니다." },
+        { "name": "Gemini", "desc": "구글의 멀티모달 LLM. 텍스트, 이미지, 코드를 통합 처리합니다." },
+        { "name": "Azure ML", "desc": "마이크로소프트의 머신러닝 플랫폼. 모델 개발부터 배포까지 지원합니다." },
+        { "name": "Health Bot", "desc": "의료 특화 AI 챗봇 서비스. 환자 상담과 증상 분석을 자동화합니다." }
+      ]
+    },
+    {
+      "id": "realtime-chatbot",
+      "label": "실시간 통신 & 챗봇",
+      "color": "#ec4899",
+      "glowColor": "rgba(236,72,153,0.7)",
+      "era": "2010s",
+      "movement": {
+        "type": "orbit",
+        "speed": 0.0022,
+        "radius": 290,
+        "offset": 225
+      },
+      "techs": [
+        { "name": "Azure Bot", "desc": "마이크로소프트의 봇 프레임워크. 다양한 채널에 배포 가능한 AI 챗봇을 구축합니다." },
+        { "name": "Amazon SNS", "desc": "AWS의 푸시 알림 서비스. 대규모 메시지를 여러 구독자에게 전송합니다." },
+        { "name": "WebSocket", "desc": "양방향 실시간 통신 프로토콜. 채팅과 라이브 업데이트에 사용됩니다." },
+        { "name": "Socket.io", "desc": "실시간 웹 애플리케이션 라이브러리. WebSocket 기반의 편리한 API를 제공합니다." },
+        { "name": "Translator", "desc": "실시간 언어 번역 API. 다국어 챗봇과 글로벌 서비스를 지원합니다." }
+      ]
+    },
+    {
+      "id": "security-auth",
+      "label": "보안 & 인증",
+      "color": "#ef4444",
+      "glowColor": "rgba(239,68,68,0.7)",
+      "era": "2010s",
+      "movement": {
+        "type": "spiral",
+        "speed": 0.0016,
+        "radius": 310,
+        "offset": 270
+      },
+      "techs": [
+        { "name": "JWT", "desc": "JSON Web Token. 서버 간 정보를 안전하게 전송하는 토큰 기반 인증 방식입니다." },
+        { "name": "OAuth2", "desc": "업계 표준 인증 프로토콜. 제3자 앱에 안전하게 권한을 위임합니다." },
+        { "name": "bcrypt", "desc": "비밀번호 해싱 알고리즘. 솔팅과 키 스트레칭으로 강력한 보안을 제공합니다." },
+        { "name": "Passport.js", "desc": "Node.js 인증 미들웨어. 다양한 전략을 통해 유연한 인증을 구현합니다." },
+        { "name": "Auth0", "desc": "인증 및 권한 관리 플랫폼. 소셜 로그인과 SSO를 쉽게 통합합니다." }
+      ]
+    },
+    {
+      "id": "devops-tools",
+      "label": "개발 & 운영 도구",
+      "color": "#10b981",
+      "glowColor": "rgba(16,185,129,0.8)",
+      "era": "2020s",
+      "movement": {
+        "type": "wave",
+        "speed": 0.0028,
+        "radius": 330,
+        "offset": 315
+      },
+      "highlight": true,
+      "nodejs": true,
+      "techs": [
+        { "name": "Node.js", "desc": "Chrome V8 기반 JavaScript 런타임. 비동기 이벤트 드리븐 아키텍처로 고성능 서버를 구축합니다." },
+        { "name": "Prisma", "desc": "차세대 ORM. 타입 안전한 데이터베이스 쿼리와 자동 마이그레이션을 제공합니다." },
+        { "name": "Git/GitHub", "desc": "분산 버전 관리 시스템. 코드 협업과 히스토리 관리를 지원합니다." },
+        { "name": "npm/yarn", "desc": "Node.js 패키지 매니저. 의존성 관리와 스크립트 실행을 담당합니다." },
+        { "name": "Jest", "desc": "JavaScript 테스팅 프레임워크. 단위 테스트와 통합 테스트를 쉽게 작성합니다." },
+        { "name": "Docker", "desc": "컨테이너 기술로 일관된 개발/운영 환경을 제공합니다." }
+      ]
+    }
+  ]
+}

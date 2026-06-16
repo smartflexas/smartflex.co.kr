@@ -1,0 +1,68 @@
+{
+  "eras": [
+    {
+      "id": "1990s",
+      "label": "1990~2000",
+      "description": "인터넷과 오픈소스의 시작",
+      "color": "#22c55e",
+      "techs": [
+        "C/C++",
+        "Java",
+        "Python",
+        "PHP",
+        "Perl",
+        "TCP/IP",
+        "DNS",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "2000s",
+      "label": "2000~2010",
+      "description": "웹 2.0과 데이터베이스 혁명",
+      "color": "#f59e0b",
+      "techs": [
+        "MySQL",
+        "PostgreSQL",
+        "MongoDB",
+        "Redis",
+        "Apache",
+        "Nginx",
+        "Linux",
+        "Git"
+      ]
+    },
+    {
+      "id": "2010s",
+      "label": "2010~2020",
+      "description": "클라우드와 컨테이너 시대",
+      "color": "#06b6d4",
+      "techs": [
+        "AWS Lambda",
+        "DynamoDB",
+        "CloudWatch",
+        "Azure",
+        "Docker",
+        "Kubernetes",
+        "WebSocket",
+        "OAuth2"
+      ]
+    },
+    {
+      "id": "2020s",
+      "label": "2020~현재",
+      "description": "AI와 LLM의 폭발적 성장",
+      "color": "#a855f7",
+      "techs": [
+        "Node.js",
+        "LoRA",
+        "RAG",
+        "Gemini",
+        "Prisma",
+        "LLM",
+        "Fine-tuning",
+        "Vertex AI"
+      ]
+    }
+  ]
+}
