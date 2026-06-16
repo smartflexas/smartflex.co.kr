@@ -21,6 +21,11 @@
 }
 
 html { scroll-behavior: smooth; }
+
+/* ACCESSIBILITY : 키보드 사용자를 위한 본문 바로가기 링크입니다. */
+.skip-nav { position: fixed; top: -999px; left: 12px; z-index: 1000; padding: 10px 16px; border-radius: 10px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; }
+.skip-nav:focus { top: 12px; outline: 3px solid rgba(167,139,250,0.7); }
+
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
@@ -38,7 +43,9 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .logo .accent { color: var(--accent); }
 .nav-links { list-style: none; display: flex; gap: 32px; }
 .nav-links a { color: var(--text2); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-.nav-links a:hover { color: var(--text); }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-links a.active { position: relative; }
+.nav-links a.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 2px; border-radius: 999px; background: var(--grad); }
 .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
 .hamburger span { display: block; width: 22px; height: 2px; background: var(--text2); border-radius: 2px; }
 
@@ -97,6 +104,19 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
   font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 1.4rem; color: #fff;
   box-shadow: 0 0 40px rgba(108,99,255,0.4);
 }
+
+
+/* ERA DISPLAY : DNA 애니메이션의 현재 기술 시대를 보여주는 오버레이입니다. */
+.era-display {
+  position: fixed; right: clamp(20px, 5vw, 72px); bottom: clamp(110px, 14vh, 160px); z-index: 2;
+  min-width: 180px; padding: 18px 20px; border: 1px solid rgba(167,139,250,0.25); border-radius: 18px;
+  background: rgba(15,15,26,0.68); backdrop-filter: blur(16px); box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+.era-year { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+.era-desc { color: var(--text2); font-size: 0.85rem; line-height: 1.5; }
+.era-controls { position: absolute; left: 24px; bottom: 32px; z-index: 3; display: flex; flex-wrap: wrap; gap: 10px; }
+.era-controls button { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: rgba(26,26,46,0.72); color: var(--text2); cursor: pointer; transition: all 0.2s; }
+.era-controls button:hover, .era-controls button.active { border-color: var(--accent); color: var(--text); background: rgba(108,99,255,0.16); }
 
 /* SECTIONS : 각 콘텐츠 섹션의 기본 레이아웃과 여백을 설정합니다. */
 .section { padding: 96px 24px; }
@@ -218,8 +238,13 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
   .ring-1 { width: 150px; height: 150px; }
   .ring-2 { width: 200px; height: 200px; }
   .ring-3 { width: 240px; height: 240px; }
-  .nav-links { display: none; }
+  .nav-links { display: none; position: absolute; top: 64px; left: 16px; right: 16px; flex-direction: column; gap: 0; padding: 12px; border: 1px solid var(--border); border-radius: 14px; background: rgba(15,15,26,0.96); backdrop-filter: blur(16px); }
+  .nav-links.active { display: flex; }
+  .nav-links li { width: 100%; }
+  .nav-links a { display: block; padding: 12px 14px; }
   .hamburger { display: flex; }
+  .era-display { position: absolute; right: 20px; bottom: 96px; min-width: 160px; text-align: left; }
+  .era-controls { left: 50%; transform: translateX(-50%); justify-content: center; width: calc(100% - 32px); bottom: 22px; }
   .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
   .tech-card { min-width: 130px; }
 }

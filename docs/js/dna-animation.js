@@ -164,10 +164,17 @@
 
     _startEraRotation() {
       this._updateEraDisplay();
-      setInterval(() => {
+      this.eraTimer = setInterval(() => {
         currentEraIndex = (currentEraIndex + 1) % ERAS.length;
         this._updateEraDisplay();
       }, CFG.universe.eraTransitionTime);
+    }
+
+    /** 사용자가 선택한 시대 인덱스로 DNA 강조 상태를 즉시 전환합니다. */
+    setEra(index) {
+      if (!ERAS[index]) return;
+      currentEraIndex = index;
+      this._updateEraDisplay();
     }
 
     _updateEraDisplay() {
@@ -178,6 +185,9 @@
       yearEl.textContent = era.label;
       yearEl.style.color = era.color;
       descEl.textContent = era.description;
+      document.querySelectorAll('[data-era-index]').forEach(button => {
+        button.classList.toggle('active', Number(button.dataset.eraIndex) === currentEraIndex);
+      });
     }
 
     _resize() {
@@ -429,6 +439,7 @@
 
     destroy() {
       if (this.rafId) cancelAnimationFrame(this.rafId);
+      if (this.eraTimer) clearInterval(this.eraTimer);
       if (this.svg) this.svg.remove();
       if (this.tooltip) this.tooltip.remove();
     }

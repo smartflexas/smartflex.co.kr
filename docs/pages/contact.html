@@ -46,7 +46,24 @@
       </div>
     </div>
 
-    <div class="social-links">
+    <form class="contact-form" name="smartflex-contact" method="POST" data-netlify="true">
+      <input type="hidden" name="form-name" value="smartflex-contact" />
+      <h2>문의 보내기</h2>
+      <div class="form-grid">
+        <label>이름<input name="name" type="text" required placeholder="홍길동" /></label>
+        <label>이메일<input name="email" type="email" required placeholder="name@example.com" /></label>
+      </div>
+      <label>긴급 여부
+        <select name="urgency">
+          <option value="normal">일반 문의</option>
+          <option value="urgent">긴급 문의</option>
+        </select>
+      </label>
+      <label>문의 내용<textarea name="message" rows="6" required placeholder="프로젝트 요구사항이나 상담 내용을 적어주세요."></textarea></label>
+      <button class="form-submit" type="submit">문의 전송</button>
+    </form>
+
+    <div class="social-links" hidden aria-hidden="true">
       <a href="#" class="social-btn" title="GitHub">🐙</a>
       <a href="#" class="social-btn" title="LinkedIn">🔗</a>
       <a href="#" class="social-btn" title="Twitter">🐦</a>

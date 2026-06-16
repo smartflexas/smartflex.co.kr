@@ -161,6 +161,7 @@ p {
 }
 
 .contact-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   margin-bottom: 3rem;
 }
 
@@ -278,6 +279,20 @@ p {
   color: var(--accent);
   font-weight: 500;
 }
+
+
+.tech-search { display: block; margin: 0 0 2rem; color: var(--text2); font-weight: 600; }
+.tech-search span { display: block; margin-bottom: 0.6rem; }
+.tech-search input, .contact-form input, .contact-form select, .contact-form textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; background: rgba(26,26,46,0.86); color: var(--text); padding: 0.9rem 1rem; font: inherit; }
+.tech-item.hidden, .tech-category.hidden { display: none; }
+.contact-form { margin: 2rem 0; padding: 2rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.contact-form label { display: block; color: var(--text2); font-weight: 600; margin-bottom: 1rem; }
+.contact-form input, .contact-form select, .contact-form textarea { margin-top: 0.5rem; }
+.form-submit { border: none; border-radius: 10px; background: var(--accent); color: #fff; padding: 0.9rem 1.4rem; font-weight: 700; cursor: pointer; }
+.timeline { position: relative; display: grid; gap: 1rem; margin-top: 1.5rem; }
+.timeline-item { border-left: 3px solid var(--accent); background: rgba(108,99,255,0.06); border-radius: 12px; padding: 1.2rem 1.4rem; }
+.timeline-year { display: inline-block; margin-bottom: 0.5rem; color: var(--accent2); font-family: 'JetBrains Mono', monospace; font-weight: 800; }
 
 @media (max-width: 768px) {
   body {

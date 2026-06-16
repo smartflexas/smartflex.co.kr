@@ -40,6 +40,37 @@ const pageMap = {
   contact: { title: '연락처', url: 'pages/contact.html' }
 };
 
+
+/**
+ * 네비게이션 링크의 현재 선택 상태와 aria-current를 동기화합니다.
+ * @param {string|null} pageName - 활성화할 pageMap 키 또는 초기화 값
+ */
+function setActiveNavigation(pageName) {
+  document.querySelectorAll('[data-page]').forEach(element => {
+    const isActive = pageName && element.dataset.page === pageName && element.tagName === 'A';
+    element.classList.toggle('active', Boolean(isActive));
+    if (isActive) element.setAttribute('aria-current', 'page');
+    else element.removeAttribute('aria-current');
+  });
+}
+
+/** 모바일 햄버거 네비게이션을 닫고 aria-expanded 상태를 초기화합니다. */
+function closeMobileNavigation() {
+  const navLinks = document.getElementById('navLinks');
+  const hamburger = document.querySelector('.hamburger');
+  if (navLinks) navLinks.classList.remove('active');
+  if (hamburger) {
+    hamburger.classList.remove('active');
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
+}
+
+/** 초기 URL 해시(#about 등)를 읽어 딥링크 모달을 엽니다. */
+function openInitialHash() {
+  const pageName = location.hash.replace('#', '');
+  if (pageName && pageMap[pageName]) openPage(pageName);
+}
+
 /**
  * 함수명: openPage(pageName)
  * 
@@ -84,11 +115,18 @@ function openPage(pageName) {
   const page = pageMap[pageName];
   if (!page) return;
 
-  // === 4단계: 모달 헤더 제목 설정 ===
+  // === 4단계: 모달 헤더 제목 및 접근성 속성 설정 ===
   title.textContent = page.title;
+  iframe.title = page.title;
+  setActiveNavigation(pageName);
 
-  // === 5단계: iframe 콘텐츠 URL 설정 ===
+  // === 5단계: iframe 콘텐츠 URL 설정 및 로딩 상태 표시 ===
+  modal.classList.add('loading');
+  iframe.onload = () => modal.classList.remove('loading');
   iframe.src = page.url;
+  if (location.hash !== `#${pageName}`) {
+    history.pushState({ page: pageName }, page.title, `#${pageName}`);
+  }
 
   // === 6단계: 모달 활성화 - CSS 애니메이션 트리거 ===
   // CSS의 .page-modal.active { transform: translateY(0) } 규칙으로 슬라이딩 애니메이션 실행
@@ -131,7 +169,12 @@ function closeAllModals() {
   if (!modal || !iframe) return;
 
   // === 3단계: 모달 비활성화 - 슬라이딩 다운 애니메이션 시작 ===
-  modal.classList.remove('active');
+  modal.classList.remove('active', 'loading');
+  setActiveNavigation(null);
+  closeMobileNavigation();
+  if (location.hash) {
+    history.pushState({}, '', location.pathname);
+  }
   
   // === 4단계: 애니메이션 완료 후 iframe 콘텐츠 언로드 ===
   // 0.5초는 docs/css/index.css의 transition 시간과 동일
@@ -159,6 +202,20 @@ function closeAllModals() {
  * ===============================================
  */
 function bindIndexEvents() {
+
+  /**
+   * === 섹션 0: 모바일 햄버거 메뉴 토글 ===
+   */
+  const hamburger = document.querySelector('.hamburger');
+  const navLinks = document.getElementById('navLinks');
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('active');
+      hamburger.classList.toggle('active', isOpen);
+      hamburger.setAttribute('aria-expanded', String(isOpen));
+    });
+  }
+
   /**
    * === 섹션 1: [data-page] 요소들의 click 이벤트 ===
    * 
@@ -180,7 +237,10 @@ function bindIndexEvents() {
     element.addEventListener('click', (event) => {
       event.preventDefault();  // 기본 링크 동작 차단
       const pageName = element.dataset.page;  // <a data-page="about"> → pageName = 'about'
-      if (pageName) openPage(pageName);  // pageMap에 존재하는 경우만 처리
+      if (pageName) {
+        openPage(pageName);
+        closeMobileNavigation();
+      }  // pageMap에 존재하는 경우만 처리
     });
   });
 
@@ -261,6 +321,21 @@ function bindIndexEvents() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeAllModals();
   });
+
+  window.addEventListener('popstate', () => {
+    const pageName = location.hash.replace('#', '');
+    if (pageName && pageMap[pageName]) openPage(pageName);
+    else closeAllModals();
+  });
+
+  document.querySelectorAll('[data-era-index]').forEach(button => {
+    button.addEventListener('click', () => {
+      const index = Number(button.dataset.eraIndex);
+      if (window._dnaUniverse && Number.isInteger(index)) window._dnaUniverse.setEra(index);
+    });
+  });
+
+  openInitialHash();
 }
 
 
