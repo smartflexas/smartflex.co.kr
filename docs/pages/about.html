@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!-- 파일명: docs/pages/about.html -->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartFlex - 소개</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090f;
+      --surface: #1a1a2e;
+      --border: #2a2a45;
+      --text: #e8e8f0;
+      --text2: #9090b0;
+      --accent: #6c63ff;
+      --grad: linear-gradient(135deg, #6c63ff 0%, #a78bfa 50%, #38bdf8 100%);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      line-height: 1.6;
+      padding: 3rem 2rem;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: var(--text2);
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background: rgba(108,99,255,0.1);
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      background: rgba(108,99,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--text2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 SmartFlex 소개</h1>
+
+    <div class="section">
+      <h2>회사 개요</h2>
+      <p>
+        SmartFlex는 클라우드 네이티브 인프라부터 LLM 파인튜닝과 RAG 파이프라인까지
+        기술 스택을 전문적으로 구축하고 설계하는 기술 기업입니다.
+      </p>
+      <p>
+        저희는 1990년대부터 현재까지 축적된 기술 DNA를 기반으로,
+        리눅스 네트워크부터 AI 머신러닝까지 전 영역의 IT 솔루션을 제공합니다.
+      </p>
+
+      <div class="highlight">
+        <strong>🧬 개발 DNA 컨셉:</strong> 저희의 기술은 DNA처럼 진화하고 분화하며 새로운 형태로 결합합니다.
+        8개의 핵심 기술 카테고리가 서로 연결되어 강력한 시너지를 창출합니다.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>핵심 가치</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">기술 전문성</div>
+          <div class="card-desc">
+            30년 이상의 기술 경험을 바탕으로 최신 기술부터 레거시 시스템까지 모두 커버합니다.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">빠른 실행력</div>
+          <div class="card-desc">
+            클라우드 네이티브 기술을 활용하여 빠르게 프로토타입을 개발하고 배포합니다.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🤝</div>
+          <div class="card-title">협업 중심</div>
+          <div class="card-desc">
+            고객과 긴밀히 소통하며 요구사항을 정확히 파악하고 최적의 솔루션을 제시합니다.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🔒</div>
+          <div class="card-title">보안 우선</div>
+          <div class="card-desc">
+            모든 시스템에 보안을 기본으로 설계하여 데이터와 인프라를 보호합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>비전</h2>
+      <p>
+        SmartFlex는 기술이 단순한 도구가 아닌 <strong>문제 해결의 수단</strong>이 되어야 한다고 믿습니다.
+      </p>
+      <p>
+        저희는 최신 기술을 제공하는 것에 그치지 않고, 고객의 비즈니스 목표를 달성하기 위한
+        <strong>최적화된 솔루션</strong>을 제안합니다.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
