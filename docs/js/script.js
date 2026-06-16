@@ -1,5 +1,64 @@
-/* docs/js/script.js : SmartFlex 기술 상세 모달 및 인터랙션 스크립트입니다. */
+/**
+ * ===============================================
+ * 📄 파일명: docs/js/script.js
+ * ===============================================
+ * 
+ * 📌 파일 목적:
+ * SmartFlex의 기술 스택 카드, 모달 상세 정보 및 전역 페이지 인터랙션을 담당합니다.
+ * 기술 스택 카드 클릭 시 모달로 상세 정보 표시, 모바일 네비게이션 토글,
+ * Intersection Observer를 활용한 스크롤 애니메이션 등의 기능을 포함합니다.
+ * 
+ * 🎯 핵심 기능:
+ * 1. 기술 스택 카드 클릭 → 상세 모달 오픈
+ * 2. 모달 닫기 (버튼, 오버레이 클릭, ESC 키)
+ * 3. 모바일 햄버거 메뉴 토글
+ * 4. 스크롤 시 요소 페이드 인 애니메이션
+ * 
+ * 📦 의존성:
+ * - docs/index.html: modalOverlay, modalIcon, modalTitle 등 모달 요소들 필요
+ * - docs/css/style.css: 모달 스타일
+ * - docs/json/: TECH_DATA는 JSON이 아닌 JS 상수로 정의됨 (인라인)
+ * 
+ * 🔧 외부 라이브러리:
+ * - IntersectionObserver API (브라우저 내장, 폴리필 불필요)
+ * 
+ * ===============================================
+ */
 
+/**
+ * 기술 데이터 상수 (const)
+ * 
+ * @type {Object<string, {icon, title, tag, body, links}>}
+ * 
+ * 📝 설명:
+ * SmartFlex에서 사용하는 모든 기술 스택 정보를 키-값 쌍으로 저장
+ * 기술 카드의 data-tech 속성값이 이 객체의 키가 됨
+ * 
+ * 각 기술의 구조:
+ * {
+ *   [techKey]: {
+ *     icon: "이모지 문자열" (예: "🔬"),
+ *     title: "기술 이름" (예: "LoRA (Low-Rank Adaptation)"),
+ *     tag: "카테고리" (예: "LLM Fine-tuning"),
+ *     body: "상세 설명 (모달에 표시되는 긴 텍스트)",
+ *     links: [ { label: "링크 텍스트", href: "URL" }, ... ]
+ *   }
+ * }
+ * 
+ * 현재 포함된 기술들:
+ * - AI/LLM: lora (LoRA), rag (RAG), vertexai (Vertex AI)
+ * - Vision: vision (Vision AI)
+ * - Audio: stt (Speech-to-Text)
+ * - NLP: translation (Translation API)
+ * - Backend: nodejs (Node.js)
+ * - Database: mongodb (MongoDB), redis (Redis), cockroachdb (CockroachDB), supabase (Supabase)
+ * - Analytics: bigquery (BigQuery)
+ * - Deployment: cloudrun (Cloud Run)
+ * 
+ * 사용 예:
+ *   TECH_DATA['lora'] => { icon: "🔬", title: "LoRA (Low-Rank Adaptation)", ... }
+ *   TECH_DATA['rag'].body => "RAG는 LLM의 환각(Hallucination) 문제를 해결하기 위해..."
+ */
 const TECH_DATA = {
   lora: {
     icon: "🔬",
@@ -94,7 +153,28 @@ const TECH_DATA = {
   }
 };
 
-// 모달 관련 DOM 요소를 가져옵니다.
+/**
+ * ===============================================
+ * 섹션 1: 모달 DOM 요소 선택 및 존재 여부 검증
+ * ===============================================
+ */
+
+/**
+ * 모달 관련 DOM 요소들
+ * 
+ * 설명:
+ *   기술 카드 클릭 시 열리는 모달의 각 구성 요소들
+ *   모두 docs/index.html에 정의되어 있어야 함
+ * 
+ * 각 요소 설명:
+ *   - modalOverlay: 전체 모달 배경 (반투명 오버레이)
+ *   - modalIcon: 기술의 이모지 아이콘 표시 영역
+ *   - modalTitle: 기술 이름 표시 (예: "LoRA (Low-Rank Adaptation)")
+ *   - modalTag: 기술 카테고리 표시 (예: "LLM Fine-tuning")
+ *   - modalBody: 기술 상세 설명 텍스트
+ *   - modalLinks: 관련 링크들을 담는 컨테이너
+ *   - modalClose: 모달 닫기 버튼 (보통 X 모양)
+ */
 const overlay = document.getElementById("modalOverlay");
 const modalIcon = document.getElementById("modalIcon");
 const modalTitle = document.getElementById("modalTitle");
@@ -103,8 +183,35 @@ const modalBody = document.getElementById("modalBody");
 const modalLinks = document.getElementById("modalLinks");
 const modalClose = document.getElementById("modalClose");
 
+/**
+ * 모달 요소 존재 여부 검증 플래그 (const)
+ * 
+ * @type {boolean}
+ * 
+ * 설명:
+ *   모든 모달 관련 DOM 요소가 정상적으로 존재하는지 확인
+ *   && 연산자로 7개 요소를 모두 체크
+ *   - 하나라도 없으면 false
+ *   - 모두 있으면 true
+ * 
+ * 용도:
+ *   openModal(), closeModal(), 이벤트 바인딩 전에 이 플래그를 체크
+ *   HTML에 모달 요소가 없으면 조용히 실행 스킵 (에러 방지)
+ * 
+ * 예시:
+ *   hasModalElements = true  (모든 요소 존재)
+ *   hasModalElements = false (일부 또는 전체 요소 없음)
+ */
+const hasModalElements = overlay && modalIcon && modalTitle && modalTag && modalBody && modalLinks && modalClose;
+const modalTag = document.getElementById("modalTag");
+const modalBody = document.getElementById("modalBody");
+const modalLinks = document.getElementById("modalLinks");
+const modalClose = document.getElementById("modalClose");
+const hasModalElements = overlay && modalIcon && modalTitle && modalTag && modalBody && modalLinks && modalClose;
+
 // 기술 카드 클릭 시 모달을 열고 내용을 채웁니다.
 function openModal(key) {
+  if (!hasModalElements) return;
   const d = TECH_DATA[key];
   if (!d) return;
   modalIcon.textContent = d.icon;
@@ -127,34 +234,42 @@ function openModal(key) {
 
 // 모달 닫기 동작을 정의합니다.
 function closeModal() {
+  if (!hasModalElements) return;
   overlay.classList.remove("active");
   document.body.style.overflow = "";
 }
 
 // 기술 카드에 클릭 이벤트를 바인딩합니다.
-document.querySelectorAll(".tech-card[data-tech]").forEach(card => {
-  card.addEventListener("click", () => openModal(card.dataset.tech));
-});
+const techCards = document.querySelectorAll(".tech-card[data-tech]");
+if (techCards.length > 0) {
+  techCards.forEach(card => {
+    card.addEventListener("click", () => openModal(card.dataset.tech));
+  });
+}
 
-modalClose.addEventListener("click", closeModal);
-overlay.addEventListener("click", e => { if (e.target === overlay) closeModal(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+if (hasModalElements) {
+  modalClose.addEventListener("click", closeModal);
+  overlay.addEventListener("click", e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+}
 
 // 모바일 햄버거 메뉴 토글 동작입니다.
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.querySelector(".nav-links");
-hamburger.addEventListener("click", () => {
-  navLinks.style.display = navLinks.style.display === "flex" ? "none" : "flex";
-  navLinks.style.flexDirection = "column";
-  navLinks.style.position = "absolute";
-  navLinks.style.top = "64px";
-  navLinks.style.left = "0";
-  navLinks.style.right = "0";
-  navLinks.style.background = "rgba(9,9,15,0.98)";
-  navLinks.style.padding = "16px 24px";
-  navLinks.style.borderBottom = "1px solid #2a2a45";
-  navLinks.style.gap = "16px";
-});
+if (hamburger && navLinks) {
+  hamburger.addEventListener("click", () => {
+    navLinks.style.display = navLinks.style.display === "flex" ? "none" : "flex";
+    navLinks.style.flexDirection = "column";
+    navLinks.style.position = "absolute";
+    navLinks.style.top = "64px";
+    navLinks.style.left = "0";
+    navLinks.style.right = "0";
+    navLinks.style.background = "rgba(9,9,15,0.98)";
+    navLinks.style.padding = "16px 24px";
+    navLinks.style.borderBottom = "1px solid #2a2a45";
+    navLinks.style.gap = "16px";
+  });
+}
 
 // 스크롤 시 요소가 화면에 나타나면 페이드 인 효과를 적용합니다.
 const observer = new IntersectionObserver(entries => {
