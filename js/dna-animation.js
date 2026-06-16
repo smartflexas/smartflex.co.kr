@@ -1,74 +1,51 @@
-"/**
- * SmartFlex 개발 DNA 우주 애니메이션 v2.0
+
+/**
+ * SmartFlex 개발 DNA 우주 애니메이션
  * 파일명: docs/js/dna-animation.js
- * 
- * JSON 기반 데이터 로드, 3D 리본 효과, 태그 시스템, 다양한 움직임 패턴
- * D3.js v7 기반, 바닐라 JavaScript
+ * 설명: D3.js 기반으로 여러 DNA 구조를 우주 홀로그램처럼 회전시키고,
+ *       시대별 기술 흐름과 Node.js 중심 기술을 강조하는 시각화를 구현합니다.
  */
 
 (function () {
   'use strict';
 
-  let CATEGORIES = [];  // JSON에서 로드
-  let ERAS = [];        // JSON에서 로드
-  let currentEraIndex = 3; // 기본: 2020s
-
-  /* ═══════════════════════════════════════════════════════════════════
-   * ① 설정값
-   * ═══════════════════════════════════════════════════════════════════ */
   const CFG = {
     dna: {
-      helixRadius: 30,      // DNA 헬릭스 반지름
-      helixHeight: 200,     // DNA 높이
-      nodeCount: 16,        // 노드 개수
-      nodeRadius: 4,        // 노드 크기
-      ribbonWidth: 12,      // 리본 너비
-      rotationSpeed: 0.001, // DNA 자전 속도
+      helixRadius: 32,
+      helixHeight: 220,
+      nodeCount: 16,
+      nodeRadius: 4,
+      ribbonWidth: 14,
+      rotationSpeed: 0.0014,
+      pulseSpeed: 5,
     },
     universe: {
-      rotationSpeed: 0.0005, // 우주 회전 속도
-      eraTransitionTime: 8000, // 시대 전환 시간 (ms)
+      rotationSpeed: 0.0006,
+      eraTransitionTime: 9000,
     },
     tags: {
       show: true,
-      maxVisible: 6,        // 동시에 보이는 최대 태그 수
-      fadeDistance: 200,    // 태그가 사라지는 거리
+      maxVisible: 5,
+      fadeDistance: 320,
     },
     tooltip: {
-      offsetX: 15,
-      offsetY: -30,
-    }
+      offsetX: 18,
+      offsetY: -34,
+    },
   };
 
-  /* ═══════════════════════════════════════════════════════════════════
-   * ② 움직임 패턴 (각 DNA마다 다른 패턴)
-   * ═══════════════════════════════════════════════════════════════════ */
   const MOVEMENT_PATTERNS = {
-    orbit: (t, radius, offset) => ({
-      x: Math.cos(t + offset) * radius,
-      y: Math.sin(t + offset) * radius,
-    }),
-    spiral: (t, radius, offset) => ({
-      x: Math.cos(t + offset) * (radius + Math.sin(t * 3) * 40),
-      y: Math.sin(t + offset) * (radius + Math.cos(t * 3) * 40),
-    }),
-    wave: (t, radius, offset) => ({
-      x: Math.cos(t + offset) * radius,
-      y: Math.sin(t + offset) * radius + Math.sin(t * 5) * 60,
-    }),
-    ellipse: (t, radius, offset) => ({
-      x: Math.cos(t + offset) * radius * 1.3,
-      y: Math.sin(t + offset) * radius * 0.7,
-    }),
-    figure8: (t, radius, offset) => ({
-      x: Math.sin(t + offset) * radius,
-      y: Math.sin(t * 2 + offset) * radius * 0.8,
-    }),
+    orbit: (t, radius, offset) => ({ x: Math.cos(t + offset) * radius, y: Math.sin(t + offset) * radius * 0.85 }),
+    spiral: (t, radius, offset) => ({ x: Math.cos(t + offset) * (radius + Math.sin(t * 2) * 50), y: Math.sin(t + offset) * (radius + Math.cos(t * 2) * 30) }),
+    wave: (t, radius, offset) => ({ x: Math.cos(t + offset) * radius * 1.05, y: Math.sin(t + offset) * radius + Math.sin(t * 4) * 40 }),
+    ellipse: (t, radius, offset) => ({ x: Math.cos(t + offset) * radius * 1.4, y: Math.sin(t + offset) * radius * 0.65 }),
+    figure8: (t, radius, offset) => ({ x: Math.sin(t + offset) * radius * 0.95, y: Math.sin(t * 2 + offset) * radius * 0.7 }),
   };
 
-  /* ═══════════════════════════════════════════════════════════════════
-   * ③ DNA 우주 애니메이션 클래스
-   * ═══════════════════════════════════════════════════════════════════ */
+  let CATEGORIES = [];
+  let ERAS = [];
+  let currentEraIndex = 3;
+
   class DNAUniverseAnimation {
     constructor(containerId) {
       this.el = document.getElementById(containerId);
@@ -80,59 +57,43 @@
       this.w = 0;
       this.h = 0;
       this.svg = null;
+      this.gUniverse = null;
+      this.tooltip = null;
       this.universeTime = 0;
       this.dnaRotations = [];
       this.rafId = null;
       this.lastTs = 0;
-      this.hoveredTech = null; // 마우스 오버된 기술
+      this.hoveredTech = null;
 
       this._init();
     }
 
-    /* ──────────────────────────────────────
-     * 초기화
-     * ────────────────────────────────────── */
     async _init() {
       await this._loadData();
       this._setupSVG();
       this._setupTooltip();
       this._startEraRotation();
       this._animate(0);
-      
       window.addEventListener('resize', () => this._resize());
     }
 
-    /* ──────────────────────────────────────
-     * JSON 데이터 로드
-     * ────────────────────────────────────── */
     async _loadData() {
       try {
-        const [catData, eraData] = await Promise.all([
-          fetch('json/dna-categories.json').then(r => r.json()),
-          fetch('json/era-timeline.json').then(r => r.json())
+        const [categoryData, eraData] = await Promise.all([
+          fetch('json/dna-categories.json').then(res => res.json()),
+          fetch('json/era-timeline.json').then(res => res.json()),
         ]);
-        
-        CATEGORIES = catData.categories;
+
+        CATEGORIES = categoryData.categories;
         ERAS = eraData.eras;
-        
-        // 각 DNA 초기 회전값
-        CATEGORIES.forEach(() => {
-          this.dnaRotations.push(Math.random() * Math.PI * 2);
-        });
-        
-        console.log('[DNA Universe] 데이터 로드 완료:', CATEGORIES.length, '카테고리');
-      } catch (error) {
-        console.error('[DNA Universe] 데이터 로드 실패:', error);
+        this.dnaRotations = CATEGORIES.map(() => Math.random() * Math.PI * 2);
+      } catch (err) {
+        console.error('[DNA Universe] 데이터 로드 실패', err);
       }
     }
 
-    /* ──────────────────────────────────────
-     * SVG 초기 설정
-     * ────────────────────────────────────── */
     _setupSVG() {
-      this.w = this.el.offsetWidth || window.innerWidth;
-      this.h = this.el.offsetHeight || window.innerHeight;
-
+      this._resize();
       this.svg = d3.select(this.el)
         .append('svg')
         .attr('width', '100%')
@@ -141,372 +102,315 @@
         .style('inset', '0')
         .style('overflow', 'visible');
 
-      // 필터 정의
       const defs = this.svg.append('defs');
-      
-      // 각 카테고리별 글로우 필터
-      CATEGORIES.forEach(cat => {
-        const filterId = `glow-${cat.id}`;
-        const f = defs.append('filter')
-          .attr('id', filterId)
-          .attr('x', '-150%').attr('y', '-150%')
-          .attr('width', '400%').attr('height', '400%');
-        
-        f.append('feGaussianBlur')
-          .attr('stdDeviation', 6)
-          .attr('result', 'coloredBlur');
-        
-        const feMerge = f.append('feMerge');
-        feMerge.append('feMergeNode').attr('in', 'coloredBlur');
-        feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+      defs.append('radialGradient')
+        .attr('id', 'universe-glow')
+        .attr('cx', '50%').attr('cy', '50%').attr('r', '50%')
+        .selectAll('stop')
+        .data([
+          { offset: '0%', color: 'rgba(108,99,255,0.3)' },
+          { offset: '60%', color: 'rgba(108,99,255,0.05)' },
+          { offset: '100%', color: 'rgba(9,9,15,0)' },
+        ])
+        .enter()
+        .append('stop')
+        .attr('offset', d => d.offset)
+        .attr('stop-color', d => d.color);
+
+      CATEGORIES.forEach(category => {
+        defs.append('filter')
+          .attr('id', `glow-${category.id}`)
+          .attr('x', '-200%')
+          .attr('y', '-200%')
+          .attr('width', '500%')
+          .attr('height', '500%')
+          .append('feGaussianBlur')
+          .attr('stdDeviation', 5);
+
+        const gradient = defs.append('linearGradient')
+          .attr('id', `grad-${category.id}`)
+          .attr('x1', '0%').attr('y1', '0%').attr('x2', '0%').attr('y2', '100%');
+
+        gradient.append('stop').attr('offset', '0%').attr('stop-color', category.color).attr('stop-opacity', 0.9);
+        gradient.append('stop').attr('offset', '50%').attr('stop-color', category.color).attr('stop-opacity', 0.35);
+        gradient.append('stop').attr('offset', '100%').attr('stop-color', category.color).attr('stop-opacity', 0.95);
       });
 
-      // 그래디언트 (리본용)
-      CATEGORIES.forEach(cat => {
-        const gradId = `grad-${cat.id}`;
-        const gradient = defs.append('linearGradient')
-          .attr('id', gradId)
-          .attr('x1', '0%').attr('y1', '0%')
-          .attr('x2', '0%').attr('y2', '100%');
-        
-        gradient.append('stop')
-          .attr('offset', '0%')
-          .attr('stop-color', cat.color)
-          .attr('stop-opacity', 0.8);
-        
-        gradient.append('stop')
-          .attr('offset', '50%')
-          .attr('stop-color', cat.color)
-          .attr('stop-opacity', 0.4);
-        
-        gradient.append('stop')
-          .attr('offset', '100%')
-          .attr('stop-color', cat.color)
-          .attr('stop-opacity', 0.8);
-      });
+      this.svg.append('rect')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('fill', 'url(#universe-glow)');
 
       this.gUniverse = this.svg.append('g').attr('class', 'dna-universe');
     }
 
-    /* ──────────────────────────────────────
-     * 툴팁 설정
-     * ────────────────────────────────────── */
     _setupTooltip() {
       this.tooltip = d3.select('body').append('div')
         .attr('class', 'tech-tooltip')
         .style('position', 'fixed')
-        .style('background', 'rgba(26,26,46,0.98)')
-        .style('border', '1px solid #2a2a45')
-        .style('border-radius', '12px')
-        .style('padding', '1rem 1.5rem')
-        .style('color', '#e8e8f0')
+        .style('background', 'rgba(15,15,26,0.95)')
+        .style('border', '1px solid rgba(255,255,255,0.08)')
+        .style('border-radius', '14px')
+        .style('padding', '14px 18px')
+        .style('color', '#f8f8ff')
         .style('font-family', 'Inter, sans-serif')
-        .style('font-size', '0.9rem')
+        .style('font-size', '0.95rem')
         .style('line-height', '1.6')
-        .style('max-width', '300px')
         .style('pointer-events', 'none')
         .style('opacity', 0)
         .style('z-index', 1000)
-        .style('backdrop-filter', 'blur(12px)')
-        .style('box-shadow', '0 8px 32px rgba(0,0,0,0.4)');
+        .style('box-shadow', '0 18px 40px rgba(0,0,0,0.35)');
     }
 
-    /* ──────────────────────────────────────
-     * 시대 자동 전환
-     * ────────────────────────────────────── */
     _startEraRotation() {
+      this._updateEraDisplay();
       setInterval(() => {
         currentEraIndex = (currentEraIndex + 1) % ERAS.length;
         this._updateEraDisplay();
       }, CFG.universe.eraTransitionTime);
-      
-      this._updateEraDisplay();
     }
 
     _updateEraDisplay() {
       const era = ERAS[currentEraIndex];
       const yearEl = document.getElementById('era-year');
       const descEl = document.getElementById('era-desc');
-      
-      if (yearEl && era) {
-        yearEl.textContent = era.label;
-        yearEl.style.color = era.color;
-      }
-      if (descEl && era) {
-        descEl.textContent = era.description;
-      }
+      if (!era || !yearEl || !descEl) return;
+      yearEl.textContent = era.label;
+      yearEl.style.color = era.color;
+      descEl.textContent = era.description;
     }
 
-    /* ──────────────────────────────────────
-     * 리사이즈
-     * ────────────────────────────────────── */
     _resize() {
       this.w = this.el.offsetWidth || window.innerWidth;
       this.h = this.el.offsetHeight || window.innerHeight;
     }
 
-    /* ──────────────────────────────────────
-     * DNA 위치 계산 (움직임 패턴 적용)
-     * ────────────────────────────────────── */
     _getDNAPosition(category, index) {
-      const cx = this.w * 0.5;
-      const cy = this.h * 0.5;
+      const cx = this.w / 2;
+      const cy = this.h / 2;
       const movement = category.movement;
       const pattern = MOVEMENT_PATTERNS[movement.type] || MOVEMENT_PATTERNS.orbit;
-      
       const t = this.universeTime * movement.speed;
-      const pos = pattern(t, movement.radius, movement.offset * Math.PI / 180);
-      
+      const radius = movement.radius * (1 + Math.sin(this.universeTime * 0.65 + index) * 0.08);
+      const offset = movement.offset * Math.PI / 180;
       return {
-        x: cx + pos.x,
-        y: cy + pos.y,
+        x: cx + pattern(t, radius, offset).x,
+        y: cy + pattern(t, radius, offset).y,
       };
     }
 
-    /* ──────────────────────────────────────
-     * 단일 DNA 헬릭스 포인트 계산
-     * ────────────────────────────────────── */
     _calcDNAPoints(category, categoryIndex) {
-      const points = [];
-      const rotation = this.dnaRotations[categoryIndex];
-      
-      for (let i = 0; i < CFG.dna.nodeCount; i++) {
+      return Array.from({ length: CFG.dna.nodeCount }).map((_, i) => {
         const t = i / (CFG.dna.nodeCount - 1);
-        const y = -CFG.dna.helixHeight / 2 + t * CFG.dna.helixHeight;
-        
+        const yBase = -CFG.dna.helixHeight / 2 + t * CFG.dna.helixHeight;
+        const rotation = this.dnaRotations[categoryIndex];
+
         const angle1 = rotation + t * Math.PI * 5;
         const angle2 = angle1 + Math.PI;
-        
         const z1 = Math.sin(angle1);
         const z2 = Math.sin(angle2);
-        
-        const scale1 = 0.7 + 0.3 * ((z1 + 1) / 2);
-        const scale2 = 0.7 + 0.3 * ((z2 + 1) / 2);
-        
-        const techIndex = i % category.techs.length;
-        const tech = category.techs[techIndex];
-        
-        points.push({
-          index: i,
-          y: y,
-          x1: Math.cos(angle1) * CFG.dna.helixRadius,
-          x2: Math.cos(angle2) * CFG.dna.helixRadius,
-          z1, z2, scale1, scale2,
-          opacity1: 0.4 + 0.6 * ((z1 + 1) / 2),
-          opacity2: 0.4 + 0.6 * ((z2 + 1) / 2),
-          tech: tech,
-          category: category,
-        });
-      }
-      
-      return points;
-    }
 
-    /* ──────────────────────────────────────
-     * 전체 렌더링
-     * ────────────────────────────────────── */
-    _render() {
-      this.gUniverse.selectAll('g.dna-group').remove();
-      
-      CATEGORIES.forEach((category, idx) => {
-        const pos = this._getDNAPosition(category, idx);
-        const points = this._calcDNAPoints(category, idx);
-        
-        const dnaGroup = this.gUniverse.append('g')
-          .attr('class', 'dna-group')
-          .attr('transform', `translate(${pos.x}, ${pos.y})`);
-        
-        // 리본 (3D 면)
-        this._drawRibbon(dnaGroup, points, category);
-        
-        // 노드
-        this._drawNodes(dnaGroup, points, category);
-        
-        // 태그 (일부만 표시)
-        this._drawTags(dnaGroup, points, category, pos);
-        
-        // 라벨
-        this._drawLabel(dnaGroup, category);
+        const x1 = Math.cos(angle1) * CFG.dna.helixRadius;
+        const x2 = Math.cos(angle2) * CFG.dna.helixRadius;
+        const y1 = yBase + z1 * 18;
+        const y2 = yBase + z2 * 18;
+
+        const tech = category.techs[i % category.techs.length];
+
+        return {
+          index: i,
+          x1,
+          y1,
+          x2,
+          y2,
+          z1,
+          z2,
+          scale1: 0.75 + 0.25 * ((z1 + 1) / 2),
+          scale2: 0.75 + 0.25 * ((z2 + 1) / 2),
+          opacity1: 0.35 + 0.65 * ((z1 + 1) / 2),
+          opacity2: 0.35 + 0.65 * ((z2 + 1) / 2),
+          tech,
+          category,
+        };
       });
     }
 
-    /* ──────────────────────────────────────
-     * 리본 그리기 (3D 면 효과)
-     * ────────────────────────────────────── */
+    _render() {
+      this.gUniverse.selectAll('g.dna-group').remove();
+      const currentEra = ERAS[currentEraIndex];
+
+      CATEGORIES.forEach((category, index) => {
+        const pos = this._getDNAPosition(category, index);
+        const points = this._calcDNAPoints(category, index);
+        const eraActive = currentEra && category.era === currentEra.id;
+        const group = this.gUniverse.append('g')
+          .attr('class', 'dna-group')
+          .attr('transform', `translate(${pos.x}, ${pos.y})`)
+          .attr('opacity', eraActive ? 1 : 0.22);
+
+        if (category.highlight || category.nodejs) {
+          group.append('ellipse')
+            .attr('cx', 0)
+            .attr('cy', 0)
+            .attr('rx', 90)
+            .attr('ry', 40)
+            .attr('fill', category.color)
+            .attr('fill-opacity', 0.05)
+            .attr('transform', `rotate(${(this.universeTime * 22) % 360})`);
+          group.append('ellipse')
+            .attr('cx', 0)
+            .attr('cy', 0)
+            .attr('rx', 130)
+            .attr('ry', 58)
+            .attr('fill', category.color)
+            .attr('fill-opacity', 0.03)
+            .attr('transform', `rotate(${(this.universeTime * -15) % 360})`);
+        }
+
+        this._drawRibbon(group, points, category);
+        this._drawNodes(group, points, category);
+        this._drawTags(group, points, category, pos, eraActive);
+        this._drawLabel(group, category, eraActive);
+      });
+    }
+
     _drawRibbon(group, points, category) {
-      // 스트랜드 1 리본
-      const ribbon1Path = this._createRibbonPath(points, d => d.x1, d => d.y, CFG.dna.ribbonWidth);
+      const ribbon1 = this._createRibbonPath(points, d => d.x1, d => d.y1, CFG.dna.ribbonWidth);
       group.append('path')
-        .attr('d', ribbon1Path)
+        .attr('d', ribbon1)
         .attr('fill', `url(#grad-${category.id})`)
+        .attr('fill-opacity', 0.76)
         .attr('stroke', category.color)
-        .attr('stroke-width', 1)
-        .attr('stroke-opacity', 0.3)
+        .attr('stroke-width', 1.2)
+        .attr('stroke-opacity', 0.25)
         .attr('filter', `url(#glow-${category.id})`);
-      
-      // 스트랜드 2 리본
-      const ribbon2Path = this._createRibbonPath(points, d => d.x2, d => d.y, CFG.dna.ribbonWidth);
+
+      const ribbon2 = this._createRibbonPath(points, d => d.x2, d => d.y2, CFG.dna.ribbonWidth);
       group.append('path')
-        .attr('d', ribbon2Path)
+        .attr('d', ribbon2)
         .attr('fill', `url(#grad-${category.id})`)
+        .attr('fill-opacity', 0.68)
         .attr('stroke', category.color)
         .attr('stroke-width', 1)
-        .attr('stroke-opacity', 0.3)
+        .attr('stroke-opacity', 0.18)
         .attr('filter', `url(#glow-${category.id})`);
     }
 
     _createRibbonPath(points, xFn, yFn, width) {
+      const half = width / 2;
       let path = '';
-      const hw = width / 2;
-      
+
       points.forEach((p, i) => {
         const x = xFn(p);
         const y = yFn(p);
-        const angle = Math.atan2(1, 0); // 수직 방향
-        
-        const x1 = x - hw * Math.cos(angle);
-        const x2 = x + hw * Math.cos(angle);
-        
-        if (i === 0) {
-          path += `M ${x1},${y}`;
-        } else {
-          path += ` L ${x1},${y}`;
-        }
+        const px = x - half;
+        if (i === 0) path += `M ${px},${y}`;
+        else path += ` L ${px},${y}`;
       });
-      
+
       for (let i = points.length - 1; i >= 0; i--) {
         const p = points[i];
         const x = xFn(p);
         const y = yFn(p);
-        const angle = Math.atan2(1, 0);
-        const x2 = x + hw * Math.cos(angle);
-        path += ` L ${x2},${y}`;
+        const px = x + half;
+        path += ` L ${px},${y}`;
       }
-      
+
       path += ' Z';
       return path;
     }
 
-    /* ──────────────────────────────────────
-     * 노드 그리기
-     * ────────────────────────────────────── */
     _drawNodes(group, points, category) {
-      const self = this;
-      
       points.forEach(p => {
-        // 노드 1
+        const pulse = 1 + Math.sin(this.universeTime * CFG.dna.pulseSpeed + p.index * 0.8) * 0.08;
+        const baseSize = CFG.dna.nodeRadius * (category.highlight || category.nodejs ? 1.18 : 1);
+
         group.append('circle')
           .attr('cx', p.x1)
-          .attr('cy', p.y)
-          .attr('r', CFG.dna.nodeRadius * p.scale1)
+          .attr('cy', p.y1)
+          .attr('r', baseSize * p.scale1 * pulse)
           .attr('fill', category.color)
           .attr('fill-opacity', p.opacity1)
           .attr('filter', `url(#glow-${category.id})`)
           .style('cursor', 'pointer')
-          .on('mouseenter', function(event) {
-            self._showTooltip(event, p.tech);
-          })
-          .on('mousemove', function(event) {
-            self._moveTooltip(event);
-          })
-          .on('mouseleave', function() {
-            self._hideTooltip();
-          });
-        
-        // 노드 2
+          .on('mouseenter', event => this._showTooltip(event, p.tech))
+          .on('mousemove', event => this._moveTooltip(event))
+          .on('mouseleave', () => this._hideTooltip());
+
         group.append('circle')
           .attr('cx', p.x2)
-          .attr('cy', p.y)
-          .attr('r', CFG.dna.nodeRadius * p.scale2)
+          .attr('cy', p.y2)
+          .attr('r', baseSize * p.scale2 * pulse)
           .attr('fill', category.color)
           .attr('fill-opacity', p.opacity2)
           .attr('filter', `url(#glow-${category.id})`)
           .style('cursor', 'pointer')
-          .on('mouseenter', function(event) {
-            self._showTooltip(event, p.tech);
-          })
-          .on('mousemove', function(event) {
-            self._moveTooltip(event);
-          })
-          .on('mouseleave', function() {
-            self._hideTooltip();
-          });
+          .on('mouseenter', event => this._showTooltip(event, p.tech))
+          .on('mousemove', event => this._moveTooltip(event))
+          .on('mouseleave', () => this._hideTooltip());
       });
     }
 
-    /* ──────────────────────────────────────
-     * 태그 그리기 (날아다니는 기술명)
-     * ────────────────────────────────────── */
-    _drawTags(group, points, category, dnaPos) {
+    _drawTags(group, points, category, dnaPos, eraActive) {
       if (!CFG.tags.show) return;
-      
       const visiblePoints = points.filter((p, i) => i % 3 === 0).slice(0, CFG.tags.maxVisible);
-      
-      visiblePoints.forEach(p => {
-        const distance = Math.sqrt(Math.pow(dnaPos.x - this.w/2, 2) + Math.pow(dnaPos.y - this.h/2, 2));
-        const opacity = Math.max(0, 1 - distance / CFG.tags.fadeDistance);
-        
-        if (opacity > 0.1) {
-          const tagX = Math.max(p.x1, p.x2) + 20;
-          
-          group.append('text')
-            .attr('x', tagX)
-            .attr('y', p.y)
-            .attr('fill', category.color)
-            .attr('font-size', 9)
-            .attr('font-weight', '600')
-            .attr('font-family', \"'JetBrains Mono', monospace\")
-            .attr('opacity', opacity * 0.7)
-            .text(p.tech.name);
-        }
+      const baseOpacity = eraActive ? 0.82 : 0.2;
+
+      visiblePoints.forEach((p, index) => {
+        const offset = (index % 2 === 0 ? 1 : -1) * 34;
+        group.append('text')
+          .attr('x', Math.max(p.x1, p.x2) + offset)
+          .attr('y', (p.y1 + p.y2) / 2)
+          .attr('fill', category.color)
+          .attr('font-size', 10)
+          .attr('font-weight', '700')
+          .attr('font-family', "'JetBrains Mono', monospace")
+          .attr('opacity', baseOpacity * (0.65 + Math.sin(this.universeTime + index) * 0.18))
+          .text(p.tech.name);
       });
     }
 
-    /* ──────────────────────────────────────
-     * 라벨
-     * ────────────────────────────────────── */
-    _drawLabel(group, category) {
-      const labelWidth = category.label.length * 9 + 20;
-      const labelY = -CFG.dna.helixHeight / 2 - 40;
-      
+    _drawLabel(group, category, eraActive) {
+      const labelText = category.nodejs ? `${category.label} · Node.js` : category.label;
+      const labelWidth = Math.max(labelText.length * 9, 120);
+      const yOffset = -CFG.dna.helixHeight / 2 - 38;
+
       group.append('rect')
         .attr('x', -labelWidth / 2)
-        .attr('y', labelY)
+        .attr('y', yOffset)
         .attr('width', labelWidth)
-        .attr('height', 26)
-        .attr('rx', 13)
-        .attr('fill', 'rgba(15,15,26,0.9)')
+        .attr('height', 28)
+        .attr('rx', 14)
+        .attr('fill', 'rgba(10,12,20,0.88)')
         .attr('stroke', category.color)
-        .attr('stroke-width', 1.5);
-      
+        .attr('stroke-width', 1.2)
+        .attr('opacity', eraActive ? 1 : 0.35);
+
       group.append('text')
         .attr('x', 0)
-        .attr('y', labelY + 17)
+        .attr('y', yOffset + 19)
         .attr('text-anchor', 'middle')
         .attr('fill', category.color)
         .attr('font-size', 10)
         .attr('font-weight', '700')
-        .attr('font-family', \"'JetBrains Mono', monospace\")
-        .text(category.label.toUpperCase());
+        .attr('font-family', "'JetBrains Mono', monospace")
+        .attr('opacity', eraActive ? 1 : 0.4)
+        .text(labelText.toUpperCase());
     }
 
-    /* ──────────────────────────────────────
-     * 툴팁 표시
-     * ────────────────────────────────────── */
     _showTooltip(event, tech) {
       this.hoveredTech = tech;
       this.tooltip
-        .html(`<strong style=\"color: #a78bfa;\">${tech.name}</strong><br><span style=\"color: #9090b0; font-size: 0.85rem;\">${tech.desc}</span>`)
+        .html(`<strong style="color:#a78bfa;">${tech.name}</strong><br/><span style="color:#c8c8e4; font-size:0.85rem;">${tech.desc}</span>`)
         .style('opacity', 1);
       this._moveTooltip(event);
     }
 
     _moveTooltip(event) {
-      if (this.hoveredTech) {
-        this.tooltip
-          .style('left', (event.clientX + CFG.tooltip.offsetX) + 'px')
-          .style('top', (event.clientY + CFG.tooltip.offsetY) + 'px');
-      }
+      if (!this.hoveredTech) return;
+      this.tooltip
+        .style('left', `${event.clientX + CFG.tooltip.offsetX}px`)
+        .style('top', `${event.clientY + CFG.tooltip.offsetY}px`);
     }
 
     _hideTooltip() {
@@ -514,26 +418,15 @@
       this.tooltip.style('opacity', 0);
     }
 
-    /* ──────────────────────────────────────
-     * 애니메이션 루프
-     * ────────────────────────────────────── */
     _animate(ts) {
       const dt = Math.min(ts - this.lastTs, 50);
       this.lastTs = ts;
-      
       this.universeTime += (dt || 16.7) * 0.001;
-      
-      this.dnaRotations = this.dnaRotations.map(rot => 
-        rot + CFG.dna.rotationSpeed * (dt || 16.7)
-      );
-      
+      this.dnaRotations = this.dnaRotations.map((rot, index) => rot + CFG.dna.rotationSpeed * (1 + index * 0.003) * (dt || 16.7));
       this._render();
       this.rafId = requestAnimationFrame(t => this._animate(t));
     }
 
-    /* ──────────────────────────────────────
-     * 정리
-     * ────────────────────────────────────── */
     destroy() {
       if (this.rafId) cancelAnimationFrame(this.rafId);
       if (this.svg) this.svg.remove();
@@ -541,17 +434,12 @@
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
-   * ④ 초기화
-   * ═══════════════════════════════════════════════════════════════════ */
   function init() {
     if (typeof d3 === 'undefined') {
       console.warn('[DNA Universe] D3.js가 로드되지 않았습니다.');
       return;
     }
-    
     window._dnaUniverse = new DNAUniverseAnimation('dna-universe');
-    console.log('[DNA Universe] 🧬 개발 DNA 우주 v2.0 시작!');
   }
 
   if (document.readyState === 'loading') {
@@ -559,6 +447,4 @@
   } else {
     init();
   }
-
 })();
-"
